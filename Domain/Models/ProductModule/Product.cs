@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Models
+namespace Domain.Models.ProductModule
 {
     public class Product : BaseEntity<int>
     {
@@ -13,7 +13,7 @@ namespace Domain.Models
         public string Description { get; set; }
         public decimal Price { get; set; }
         public ProductBrand ProductBrand { get; set; }
-        public int BrandId  { get; set; }
+        public int BrandId { get; set; }
         public ProductType ProductType { get; set; }
         public int TypeId { get; set; }
     }

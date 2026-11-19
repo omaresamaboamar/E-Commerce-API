@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.DataTransferDto
+namespace Shared.DataTransferDto.ProductModulesDto
 {
     public class BrandsDto
     {
         public int Id { get; set; }
-        public string Name { get; set; } 
+        public string Name { get; set; }
     }
 }

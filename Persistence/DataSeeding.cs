@@ -5,13 +5,18 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Domain.Contracts;
-using Domain.Models;
+using Domain.Models.IdentityModule;
+using Domain.Models.OrderModule;
+using Domain.Models.ProductModule;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
+using Persistence.IdentityUser;
 
 namespace Persistence
 {
-    public class DataSeeding(StoreDbContext _dbcontext) : IDataSeeding
+    public class DataSeeding(StoreDbContext _dbcontext,UserManager<ApplicationUser> _userManager ,
+        RoleManager<IdentityRole> _roleManager ,StoreIdentityDbContext _identityDbContext) : IDataSeeding
     {
         public void DataSeed()
         {
@@ -53,6 +58,17 @@ namespace Persistence
                     }
                 }
 
+
+                if (!_dbcontext.Set<DeliveryMethod>().Any())
+                {
+                    var DeliveryMethodsData = File.ReadAllText(@"..\Persistence\Data\DataSeed\delivery.json");
+                    var DeliveryMethods = JsonSerializer.Deserialize<List<DeliveryMethod>>(DeliveryMethodsData);
+                    if (DeliveryMethods is not null && DeliveryMethods.Any())
+                    {
+                        _dbcontext.Set<DeliveryMethod>().AddRange(DeliveryMethods);
+                    }
+                }
+
                 _dbcontext.SaveChanges();
 
             }
@@ -60,6 +76,49 @@ namespace Persistence
             {
 
                 
+            }
+        }
+
+        public async void IdentityDataSeed()
+        {
+            if (!_roleManager.Roles.Any())
+            {
+               await _roleManager.CreateAsync(new IdentityRole("Admin"));
+               await _roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
+            }
+            
+            if (!_userManager.Users.Any())
+            {
+                try
+                {
+                    var user01 = new ApplicationUser()
+                    {
+                        Email = "MohamedAhmed@gmail.com",
+                        DisplayName = "Mohamed Ahmed",
+                        PhoneNumber = "01002745855",
+                        UserName = "MohamedAhmed",
+                    };
+                    var user02 = new ApplicationUser()
+                    {
+                        Email = "SalmaAhmed@gmail.com",
+                        DisplayName = "Salma Ahmed",
+                        PhoneNumber = "01002476845",
+                        UserName = "SalmaAhmed",
+                    };
+
+                    await _userManager.CreateAsync(user01, "Mohamed@12345");
+                    await _userManager.CreateAsync(user02, "Salma@12345");
+
+                    await _userManager.AddToRoleAsync(user01, "Admin");
+                    await _userManager.AddToRoleAsync(user02, "SuperAdmin");
+                    
+                    await _identityDbContext.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+
+                    throw ex;
+                }
             }
         }
     }

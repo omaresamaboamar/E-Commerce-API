@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
+using Domain.Models.ProductModule;
+using Shared.DataTransferDto.ProductModulesDto;
+
+namespace Services.Specification
+{
+    public class ProductCountSpesifications : BaseSpecification<Product, int>
+    {
+        public ProductCountSpesifications(ProductQueryParameter queryParameters) :base(ApplyCritria(queryParameters))
+        {
+            
+        }
+        private static Expression<Func<Product, bool>> ApplyCritria(ProductQueryParameter queryParameters)
+        {
+            return product =>
+                    (!queryParameters.BrandId.HasValue || product.BrandId == queryParameters.BrandId.Value) &&
+                    (!queryParameters.TypeId.HasValue || product.TypeId == queryParameters.TypeId.Value) &&
+                    (string.IsNullOrEmpty(queryParameters.Search) ||
+                    product.Name.ToLower().Contains(queryParameters.Search.ToLower()));
+        }
+    }
+}
